@@ -1,0 +1,20 @@
+{
+  "tasks": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  },
+  "imports": {
+    "@preact/preset-vite": "npm:@preact/preset-vite@^2.9.0",
+    "@std/fmt": "jsr:@std/fmt@^1.0.2",
+    "@std/path": "jsr:@std/path@^1.0.4",
+    "aliased": "./src/alias-result.ts",
+    "preact": "npm:preact@^10.23.2",
+    "vite": "npm:vite@^5.4.3"
+  },
+  "exclude": [".vite"]
+}

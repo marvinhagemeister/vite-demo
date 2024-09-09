@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@babel/plugin-transform-react-jsx-development": "^7.24.7",
+    "@swc-node/core": "^1.13.3",
+    "babel-plugin-transform-hook-names": "^1.0.2",
+    "vite-plugin-inspect": "^0.8.7"
+  }
+}
