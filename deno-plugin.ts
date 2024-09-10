@@ -6,6 +6,11 @@ const DECODER = new TextDecoder();
 const DENO_DEP_IMPORT = /^(https?:\/\/|jsr:|npm:)/;
 
 export function deno(): Plugin {
+  // Keep track of processed specifiers
+  const processed = new Set<string>();
+  // Cache to speed up repeated resolution.
+  const cache = new Map<string, string | null>();
+
   let config: ResolvedConfig;
   return {
     name: "deno",
@@ -17,6 +22,12 @@ export function deno(): Plugin {
     // used to resolve aliases or virtual modules. Plugins can also
     // "tag" specifiers, so that no other plugins will resolve them.
     async resolveId(id) {
+      // Bail out early if we resolved this specifier already, regardless
+      // of whether we were able to resolve it or not.
+      if (processed.has(id)) {
+        return cache.get(id);
+      }
+
       // Check if Deno can resolve this specifier. It's a bit
       // gross having to spawn a child process for each identifier.
       // We could add some caching here around it to ensure every
@@ -26,6 +37,8 @@ export function deno(): Plugin {
         args: ["info", "--json", id],
         cwd: config.root ?? Deno.cwd(),
       })).output();
+
+      processed.add(id);
 
       // Deno can resolve it, if it is successful
       if (result.code === 0) {
@@ -40,10 +53,13 @@ export function deno(): Plugin {
           json.roots.some((root) => DENO_DEP_IMPORT.test(root)) ||
           path.relative(config.root, mod.local).startsWith(".")
         ) {
-          return `\0deno:${mod.local}`;
+          const resolved = `\0deno:${mod.local}`;
+          cache.set(id, resolved);
+          return resolved;
         }
 
         // We can vite handle the loading for us
+        cache.set(id, mod.local);
         return mod.local;
       }
 
